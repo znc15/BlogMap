@@ -23,7 +23,7 @@ RUN mkdir -p /app/data /app/public/uploads && chown -R appuser:appgroup /app
 
 USER appuser
 
-EXPOSE 3000
+EXPOSE 48721
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "app.js"]

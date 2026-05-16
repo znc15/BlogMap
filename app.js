@@ -164,7 +164,7 @@ function fetchGeoJSON() {
 
 // ===== 启动 =====
 async function start() {
-  const port = config.port || 3000;
+  const port = process.env.PORT || config.port || 48721;
 
   // 初始化数据库（确保表存在）
   const db = getDb();

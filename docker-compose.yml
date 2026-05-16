@@ -6,7 +6,7 @@ services:
     container_name: travel-footprints-cms
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "48721:48721"
     volumes:
       # 持久化数据库和上传文件
       - ./data:/app/data

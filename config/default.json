@@ -1,5 +1,5 @@
 {
-  "port": 3000,
+  "port": 48721,
   "sessionSecret": "travel-footprints-secret-change-in-production",
   "site": {
     "name": "足迹 · Footprints",
