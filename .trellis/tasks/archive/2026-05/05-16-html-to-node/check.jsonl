@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "质量检查前思考触发器"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "跨层一致性检查：前后端数据格式、API契约"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "检查是否有重复代码或可复用机会"}
+{"file": "index.html", "reason": "原始参考：验证迁移后功能完整性（地图、时间轴、灯箱、导入导出）"}

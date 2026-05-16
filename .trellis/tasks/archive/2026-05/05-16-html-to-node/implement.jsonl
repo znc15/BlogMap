@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/guides/index.md", "reason": "思考触发器：跨层数据流与代码复用检查清单"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "跨层数据流思维指南：Express路由→控制器→数据库三层数据流"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "代码复用检查：防止重复造轮子"}
+{"file": "index.html", "reason": "原始单文件HTML：设计风格、CSS变量、JS交互逻辑的完整参考"}
