@@ -223,8 +223,8 @@ async function start() {
   // 拉取 GeoJSON（异步，不阻塞启动）
   fetchGeoJSON();
 
-  // 启动服务
-  app.listen(port, () => {
+  // 启动服务（显式绑定 0.0.0.0，兼容 Docker 端口映射）
+  app.listen(port, '0.0.0.0', () => {
     logger.info('========================================');
     logger.info(`  旅行相册 CMS 已启动`);
     logger.info(`  前台访问: http://localhost:${port}`);
