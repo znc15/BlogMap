@@ -1,0 +1,278 @@
+<%- include('partials/header', { title: '首页' }) %>
+
+<style>
+  /* 搜索栏激活时显示 */
+  #searchBar { display: flex !important; }
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    flex: 1;
+    max-width: 320px;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus-within {
+    border-color: var(--accent);
+  }
+  .search-icon {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    margin-right: 8px;
+  }
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 0.85rem;
+    width: 100%;
+    font-family: var(--sans);
+  }
+  .search-input::placeholder { color: var(--text-light); }
+  @media (max-width: 768px) {
+    #searchBar { max-width: 180px; }
+  }
+  /* 统计图表区域 */
+  .chart-section { margin-top: 36px; }
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-box-title {
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+  }
+  .chart-container { width: 100%; height: 280px; }
+  @media (max-width: 768px) {
+    .chart-grid { grid-template-columns: 1fr; }
+  }
+  /* 搜索高亮 */
+  .search-hidden { display: none !important; }
+  .pill-highlight { border-color: var(--accent) !important; background: var(--accent-soft) !important; }
+  /* 图片模糊占位 */
+  img.img-fade {
+    position: relative;
+    background: var(--card);
+  }
+  img.img-fade::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--card) 0%, var(--bg-soft) 50%, var(--card) 100%);
+    background-size: 200% 200%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    z-index: -1;
+  }
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+</style>
+
+<main>
+  <section class="hero">
+    <div class="hero-eyebrow">A Visual Diary</div>
+    <h1>把走过的路，<br><span class="ink">折成一张地图。</span></h1>
+    <p class="hero-sub">这里记录了我在中国大地上的旅行片段。点击地图上的省份，进入一段图文回忆 —— 那些被光线和气味留下的瞬间，被收纳在一张张照片里。</p>
+  </section>
+
+  <section class="map-section">
+    <div class="map-header">
+      <div class="map-title">中国 · 行迹地图</div>
+    </div>
+    <div id="map"></div>
+    <div class="map-tip" id="mapTip">点击亮色省份查看相册</div>
+  </section>
+
+  <!-- 统计图表（ECharts） -->
+  <section class="chart-section reveal">
+    <h2 class="section-title">旅行统计</h2>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-box-title">各省份照片数量</div>
+        <div class="chart-container" id="chartProvincePhotos"></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-title">年度照片统计</div>
+        <div class="chart-container" id="chartYearlyPhotos"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline-section reveal">
+    <h2 class="section-title">时间轴 · 旅行年表</h2>
+    <div class="timeline-rail">
+      <div class="timeline-track" id="timelineTrack"></div>
+    </div>
+  </section>
+
+  <section class="quick-list reveal">
+    <h2 class="section-title">已点亮的足迹</h2>
+    <div class="pills" id="pills"></div>
+  </section>
+</main>
+
+<!-- 详情面板 -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-inner">
+    <button class="detail-back" onclick="closeDetail()">&larr; 返回地图</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <button class="lightbox-nav prev" onclick="navLightbox(-1)">&#8249;</button>
+  <button class="lightbox-nav next" onclick="navLightbox(1)">&#8250;</button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<script>
+// ===== 由服务端注入的省份数据 =====
+window.TRAVEL_DATA = <%- JSON.stringify(provinces).replace(/<\//g, '<\\/') %>;
+window.STATS = {
+  provinces: <%= stats.provinceCount %>,
+  photos: <%= stats.photoCount %>
+};
+</script>
+
+<script src="/js/gallery.js"></script>
+<script src="/js/map.js"></script>
+
+<script>
+// ===== ECharts 统计图表 =====
+(function() {
+  if (typeof echarts === 'undefined') return;
+
+  // 省份照片数柱状图
+  var chart1 = echarts.init(document.getElementById('chartProvincePhotos'));
+  var provinces = window.TRAVEL_DATA || [];
+  var names = provinces.map(function(p) { return p.display; });
+  var counts = provinces.map(function(p) { return p.photos ? p.photos.length : 0; });
+
+  chart1.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 40, right: 16, top: 16, bottom: 32, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: names,
+      axisLabel: { color: '#AAA9A5', fontSize: 11, interval: 0, rotate: 45 },
+      axisLine: { lineStyle: { color: '#3A3F47' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#32373E', type: 'dashed' } },
+      axisLabel: { color: '#AAA9A5', fontSize: 11 }
+    },
+    series: [{
+      type: 'bar',
+      data: counts,
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#D65A31' },
+          { offset: 1, color: '#4C3D37' }
+        ]),
+        borderRadius: [4, 4, 0, 0]
+      },
+      emphasis: { itemStyle: { color: '#D65A31' } }
+    }]
+  });
+
+  // 年度照片统计
+  var chart2 = echarts.init(document.getElementById('chartYearlyPhotos'));
+  var yearMap = {};
+  provinces.forEach(function(p) {
+    if (!p.photos) return;
+    p.photos.forEach(function(ph) {
+      if (ph.time) {
+        var year = ph.time.substring(0, 4);
+        if (year >= '2000' && year <= '2030') {
+          yearMap[year] = (yearMap[year] || 0) + 1;
+        }
+      }
+    });
+  });
+  var years = Object.keys(yearMap).sort();
+  var yearCounts = years.map(function(y) { return yearMap[y]; });
+
+  chart2.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 40, right: 16, top: 16, bottom: 28, containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: years.length ? years : ['暂无数据'],
+      axisLabel: { color: '#AAA9A5', fontSize: 11 },
+      axisLine: { lineStyle: { color: '#3A3F47' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#32373E', type: 'dashed' } },
+      axisLabel: { color: '#AAA9A5', fontSize: 11 }
+    },
+    series: [{
+      type: 'bar',
+      data: years.length ? yearCounts : [0],
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#D65A31' },
+          { offset: 1, color: '#4C3D37' }
+        ]),
+        borderRadius: [4, 4, 0, 0]
+      },
+      emphasis: { itemStyle: { color: '#D65A31' } }
+    }]
+  });
+
+  // 窗口缩放时自适应
+  window.addEventListener('resize', function() {
+    chart1.resize();
+    chart2.resize();
+  });
+})();
+
+// ===== 搜索功能 =====
+function handleSearch(value) {
+  var q = value.toLowerCase().trim();
+  var pills = document.querySelectorAll('#pills .pill');
+  var nodes = document.querySelectorAll('#timelineTrack .timeline-node');
+
+  pills.forEach(function(pill) {
+    var text = pill.textContent.toLowerCase();
+    if (!q || text.indexOf(q) !== -1) {
+      pill.classList.remove('search-hidden');
+    } else {
+      pill.classList.add('search-hidden');
+    }
+  });
+
+  nodes.forEach(function(node) {
+    var text = node.textContent.toLowerCase();
+    if (!q || text.indexOf(q) !== -1) {
+      node.classList.remove('search-hidden');
+    } else {
+      node.classList.add('search-hidden');
+    }
+  });
+}
+</script>
+
+<%- include('partials/footer') %>

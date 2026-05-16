@@ -1,0 +1,358 @@
+<%- include('../partials/admin-head', { title: '照片管理' }) %>
+
+<%- include('../partials/admin-nav', { active: 'photos' }) %>
+
+<style>
+  .photo-card.dragging { opacity: 0.4; }
+  .photo-card.drag-over { border-color: var(--accent) !important; box-shadow: 0 0 0 2px var(--accent-soft); }
+  .photo-card .checkbox-wrap {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .photo-card:hover .checkbox-wrap { opacity: 1; }
+  .photo-card .checkbox-wrap input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+  .photo-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .photo-card.selected .checkbox-wrap { opacity: 1; }
+  .batch-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+  .batch-bar.show { display: flex; }
+  .batch-bar span { font-size: 0.9rem; }
+  .sort-handle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 5;
+    cursor: grab;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 4px;
+  }
+  .photo-card:hover .sort-handle { opacity: 1; }
+  .sort-handle:active { cursor: grabbing; }
+</style>
+
+<main>
+  <div class="admin-main">
+    <div class="admin-page-header">
+      <h1 class="admin-page-title">照片管理</h1>
+    </div>
+
+    <div class="field" style="max-width:400px;">
+      <label class="field-label">选择省份</label>
+      <select class="field-select" id="provinceSelect" onchange="switchProvince(this.value)">
+        <option value="">— 选择省份 —</option>
+        <% provinces.forEach(function(p) { %>
+          <option value="<%= p.id %>" <%= currentProvince && currentProvince.id === p.id ? 'selected' : '' %>>
+            <%= p.display %> (<%= p.photo_count %> 张)
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <% if (currentProvince) { %>
+      <div class="admin-page-header" style="margin-top:12px;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.3rem;font-weight:600;"><%= currentProvince.display %></div>
+          <div style="color:var(--text-muted);font-size:0.85rem;"><%= currentProvince.province %> · <%= currentProvince.photos.length %> 张照片</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="toggleBatchMode()" id="batchModeBtn">
+            <svg class="icon-sm icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            批量选择
+          </button>
+          <button class="btn btn-primary" onclick="document.getElementById('uploadInput').click()">
+            <svg class="icon-sm icon-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            上传照片
+          </button>
+        </div>
+        <input type="file" id="uploadInput" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadPhoto(this)">
+      </div>
+
+      <!-- 批量操作栏 -->
+      <div class="batch-bar" id="batchBar">
+        <span>已选择 <b id="batchCount">0</b> 张</span>
+        <button class="btn btn-danger" onclick="batchDelete()">批量删除</button>
+        <button class="btn btn-ghost" onclick="toggleBatchMode()">取消选择</button>
+      </div>
+
+      <div id="photoGrid" class="photo-grid">
+        <% if (currentProvince.photos.length === 0) { %>
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="empty-state-text">暂无照片</div>
+            <div class="empty-state-action">
+              <button class="btn btn-primary" onclick="document.getElementById('uploadInput').click()">上传第一张照片</button>
+            </div>
+          </div>
+        <% } else { %>
+          <% currentProvince.photos.forEach(function(photo) { %>
+            <div class="photo-card reveal" data-id="<%= photo.id %>">
+              <!-- 复选框（批量模式） -->
+              <div class="checkbox-wrap">
+                <input type="checkbox" class="photo-checkbox" value="<%= photo.id %>" onchange="updateBatchCount()">
+              </div>
+              <!-- 拖拽手柄 -->
+              <div class="sort-handle" title="拖拽排序">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+              </div>
+              <img class="photo-card-img img-fade" src="<%= photo.src %>" alt="<%= photo.caption %>" loading="lazy">
+              <div class="photo-card-body">
+                <div class="photo-card-caption"><%= photo.caption || '无描述' %></div>
+                <div class="photo-card-location"><%= photo.location || '' %></div>
+              </div>
+              <div class="photo-card-actions">
+                <button class="btn" onclick="editPhoto(<%= photo.id %>, <%- JSON.stringify(photo.caption || '') %>, <%- JSON.stringify(photo.location || '') %>, <%- JSON.stringify(photo.time || '') %>, <%- JSON.stringify(photo.camera || '') %>, <%- JSON.stringify(photo.aperture || '') %>, <%- JSON.stringify(photo.shutter || '') %>, <%- JSON.stringify(photo.iso || '') %>, <%- JSON.stringify(photo.focal_length || '') %>)">编辑</button>
+                <button class="btn btn-danger" onclick="deletePhoto(<%= photo.id %>)">删除</button>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </div>
+        <div class="empty-state-text">请先选择一个省份来管理照片</div>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<!-- 编辑照片弹窗 -->
+<div class="drawer-backdrop" id="editBackdrop" style="display:none;" onclick="closeEditPanel()"></div>
+<aside class="drawer" id="editPanel" style="display:none;">
+  <div class="drawer-head">
+    <div class="drawer-title">编辑照片</div>
+    <button class="drawer-close" onclick="closeEditPanel()">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <input type="hidden" id="editPhotoId">
+    <div class="field">
+      <label class="field-label">描述</label>
+      <input class="field-input" type="text" id="editCaption" placeholder="照片描述">
+    </div>
+    <div class="field">
+      <label class="field-label">拍摄地点</label>
+      <input class="field-input" type="text" id="editLocation" placeholder="拍摄地点">
+    </div>
+    <div class="field">
+      <label class="field-label">拍摄时间</label>
+      <input class="field-input" type="text" id="editTime" placeholder="例：2024-08-14 07:42">
+    </div>
+    <div class="field">
+      <label class="field-label">相机型号</label>
+      <input class="field-input" type="text" id="editCamera" placeholder="例：Canon EOS 5D Mark IV">
+    </div>
+    <div class="field">
+      <label class="field-label">光圈</label>
+      <input class="field-input" type="text" id="editAperture" placeholder="例：f/2.8">
+    </div>
+    <div class="field">
+      <label class="field-label">快门速度</label>
+      <input class="field-input" type="text" id="editShutter" placeholder="例：1/250s">
+    </div>
+    <div class="field">
+      <label class="field-label">ISO</label>
+      <input class="field-input" type="text" id="editIso" placeholder="例：ISO 400">
+    </div>
+    <div class="field">
+      <label class="field-label">焦距</label>
+      <input class="field-input" type="text" id="editFocalLength" placeholder="例：85mm">
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-ghost" onclick="closeEditPanel()">取消</button>
+    <button class="btn btn-primary" onclick="savePhotoEdit()">保存</button>
+  </div>
+</aside>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+function switchProvince(id) {
+  if (id) {
+    window.location.href = '/admin/photos?province_id=' + id;
+  }
+}
+
+function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const provinceId = document.getElementById('provinceSelect').value;
+  if (!provinceId) return showToast('请先选择省份');
+
+  const formData = new FormData();
+  formData.append('photo', file);
+  formData.append('provinceId', provinceId);
+
+  fetch('/api/admin/photos', {
+    method: 'POST',
+    body: formData
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('上传失败: ' + data.error);
+      showToast('上传成功');
+      setTimeout(() => location.reload(), 800);
+    })
+    .catch(err => showToast('上传失败: ' + err.message));
+
+  input.value = '';
+}
+
+function editPhoto(id, caption, location, time) {
+  document.getElementById('editPhotoId').value = id;
+  document.getElementById('editCaption').value = caption;
+  document.getElementById('editLocation').value = location;
+  document.getElementById('editTime').value = time || '';
+  document.getElementById('editPanel').style.display = '';
+  document.getElementById('editPanel').classList.add('open');
+  document.getElementById('editBackdrop').style.display = '';
+  document.getElementById('editBackdrop').classList.add('open');
+}
+
+function closeEditPanel() {
+  document.getElementById('editPanel').classList.remove('open');
+  document.getElementById('editBackdrop').classList.remove('open');
+  setTimeout(() => {
+    document.getElementById('editPanel').style.display = 'none';
+    document.getElementById('editBackdrop').style.display = 'none';
+  }, 350);
+}
+
+function savePhotoEdit() {
+  const id = document.getElementById('editPhotoId').value;
+  const caption = document.getElementById('editCaption').value.trim();
+  const location = document.getElementById('editLocation').value.trim();
+  const time = document.getElementById('editTime').value.trim();
+
+  const body = { caption, location };
+  if (time) body.time = time;
+
+  fetch('/api/admin/photos/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('保存失败: ' + data.error);
+      showToast('已保存');
+      setTimeout(() => location.reload(), 800);
+    })
+    .catch(err => showToast('保存失败: ' + err.message));
+}
+
+function deletePhoto(id) {
+  if (!confirm('确定要删除这张照片吗？')) return;
+  fetch('/api/admin/photos/' + id, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('删除失败: ' + data.error);
+      showToast('已删除');
+      setTimeout(() => location.reload(), 800);
+    })
+    .catch(() => showToast('删除失败'));
+}
+
+// ===== 批量选择模式 =====
+var batchMode = false;
+
+function toggleBatchMode() {
+  batchMode = !batchMode;
+  var bar = document.getElementById('batchBar');
+  var checks = document.querySelectorAll('.photo-checkbox');
+
+  checks.forEach(function(cb) { cb.checked = false; });
+
+  if (batchMode) {
+    bar.classList.add('show');
+    document.getElementById('batchModeBtn').textContent = '退出选择';
+  } else {
+    bar.classList.remove('show');
+    document.getElementById('batchModeBtn').textContent = '批量选择';
+    document.querySelectorAll('.photo-card.selected').forEach(function(c) { c.classList.remove('selected'); });
+  }
+  updateBatchCount();
+}
+
+function updateBatchCount() {
+  var checked = document.querySelectorAll('.photo-checkbox:checked').length;
+  document.getElementById('batchCount').textContent = checked;
+  document.querySelectorAll('.photo-checkbox').forEach(function(cb) {
+    cb.closest('.photo-card').classList.toggle('selected', cb.checked);
+  });
+}
+
+function batchDelete() {
+  var checked = document.querySelectorAll('.photo-checkbox:checked');
+  if (checked.length === 0) return showToast('请先选择要删除的照片');
+  if (!confirm('确定要删除选中的 ' + checked.length + ' 张照片吗？')) return;
+
+  var ids = [];
+  checked.forEach(function(cb) { ids.push(parseInt(cb.value)); });
+
+  fetch('/api/admin/photos/batch-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids: ids })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) return showToast('删除失败: ' + data.error);
+      showToast('已删除 ' + data.deleted + ' 张照片');
+      setTimeout(function() { window.location.reload(); }, 800);
+    })
+    .catch(function() { showToast('删除失败'); });
+}
+
+// ===== SortableJS 拖拽排序 =====
+(function() {
+  var grid = document.getElementById('photoGrid');
+  if (!grid || grid.querySelector('.empty-state')) return;
+
+  var sortable = new Sortable(grid, {
+    handle: '.sort-handle',
+    animation: 200,
+    ghostClass: 'dragging',
+    dragClass: 'drag-over',
+    onEnd: function() {
+      var ids = [];
+      grid.querySelectorAll('.photo-card').forEach(function(card) {
+        ids.push(parseInt(card.getAttribute('data-id')));
+      });
+      if (ids.length > 0) {
+        fetch('/api/admin/photos/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photoIds: ids })
+        })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.error) showToast('排序保存失败');
+            else showToast('排序已保存');
+          })
+          .catch(function() { showToast('排序保存失败'); });
+      }
+    }
+  });
+})();
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,108 @@
+<%- include('partials/header', { title: 'API 文档' }) %>
+
+<style>
+  .api-page { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+  .api-title { font-family: var(--serif); font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .api-subtitle { color: var(--text-muted); margin-bottom: 40px; }
+  .api-section { margin-bottom: 36px; }
+  .api-section h2 { font-family: var(--serif); font-size: 1.3rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .api-section h2::before { content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; }
+  .api-method { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; font-family: monospace; text-transform: uppercase; margin-right: 8px; }
+  .api-method.get { background: #2d6a4f; color: #d8f3dc; }
+  .api-method.post { background: #5c4db2; color: #e8e0f4; }
+  .api-method.put { background: #b6682d; color: #fce5d6; }
+  .api-method.delete { background: #a14040; color: #f5d6d6; }
+  .api-endpoint { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .api-endpoint-head { padding: 14px 18px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; }
+  .api-endpoint-head:hover { background: var(--bg-soft); }
+  .api-endpoint-path { font-family: monospace; font-size: 0.92rem; }
+  .api-endpoint-desc { font-size: 0.85rem; color: var(--text-muted); margin-left: 12px; }
+  .api-endpoint-body { padding: 0 18px 18px; display: none; }
+  .api-endpoint.open .api-endpoint-body { display: block; }
+  .api-endpoint-body h4 { font-size: 0.85rem; color: var(--text-muted); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .api-endpoint-body table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .api-endpoint-body td, .api-endpoint-body th { padding: 6px 10px; border-bottom: 1px solid var(--border-light); text-align: left; }
+  .api-endpoint-body th { color: var(--text-muted); font-weight: 500; }
+  .api-endpoint-body code { background: var(--bg-soft); padding: 1px 6px; border-radius: 3px; font-family: monospace; font-size: 0.82rem; }
+  .api-endpoint-body pre { background: var(--bg-soft); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.82rem; line-height: 1.5; }
+  .api-toggle { color: var(--text-muted); font-size: 0.8rem; cursor: pointer; }
+</style>
+
+<div class="api-page">
+  <h1 class="api-title">API 文档</h1>
+  <p class="api-subtitle">旅行相册 CMS 接口说明 · 所有后台接口需要管理员登录</p>
+
+  <% const endpoints = [
+    { section: '前台公开接口', items: [
+      { method: 'GET', path: '/api/provinces', desc: '获取所有已发布省份（含照片）', auth: false, params: [], response: '省份数组，每项含 photos 数组' },
+      { method: 'GET', path: '/api/provinces/:id', desc: '获取单个省份详情', auth: false, params: [{name: 'id', type: 'number', desc: '省份 ID'}], response: '{ id, province, display, period, diary, photos }' },
+      { method: 'POST', path: '/api/comments', desc: '提交评论', auth: false, params: [{name: 'provinceId', type: 'number', desc: '省份 ID'},{name: 'author', type: 'string', desc: '昵称（可选）'},{name: 'content', type: 'string', desc: '评论内容'}], response: '{ success, id }' },
+      { method: 'GET', path: '/api/comments/:provinceId', desc: '获取已审核评论', auth: false, params: [{name: 'provinceId', type: 'number', desc: '省份 ID'}], response: '评论数组' },
+      { method: 'GET', path: '/rss.xml', desc: 'RSS/Atom 订阅', auth: false, params: [], response: 'Atom XML' },
+      { method: 'GET', path: '/sitemap.xml', desc: '站点地图', auth: false, params: [], response: 'XML Sitemap' }
+    ]},
+    { section: '后台管理接口', items: [
+      { method: 'GET', path: '/api/admin/stats', desc: '获取统计数据', auth: true, params: [], response: '{ provinceCount, photoCount, recentProvince, totalVisits, todayVisits, pendingComments }' },
+      { method: 'POST', path: '/api/admin/provinces', desc: '创建省份', auth: true, params: [{name: 'province', type: 'string', desc: '完整省份名'},{name: 'display', type: 'string', desc: '显示简称'},{name: 'period', type: 'string', desc: '旅行时间（可选）'},{name: 'diary', type: 'array', desc: '游记段落数组'}], response: '{ id }' },
+      { method: 'PUT', path: '/api/admin/provinces/:id', desc: '更新省份', auth: true, params: [{name: 'province', type: 'string'},{name: 'display', type: 'string'},{name: 'period', type: 'string'},{name: 'diary', type: 'array'},{name: 'status', type: 'string', desc: 'published/draft'}], response: '{ success }' },
+      { method: 'PUT', path: '/api/admin/provinces/:id/toggle-status', desc: '切换发布/草稿状态', auth: true, params: [], response: '{ success, status }' },
+      { method: 'DELETE', path: '/api/admin/provinces/:id', desc: '删除省份', auth: true, params: [], response: '{ success }' },
+      { method: 'POST', path: '/api/admin/photos', desc: '上传照片（multipart/form-data）', auth: true, params: [{name: 'photo', type: 'file', desc: '图片文件'},{name: 'provinceId', type: 'number', desc: '省份 ID'},{name: 'caption', type: 'string', desc: '描述（可选）'},{name: 'location', type: 'string', desc: '地点（可选）'},{name: 'time', type: 'string', desc: '时间（可选）'}], response: '{ id, src }' },
+      { method: 'PUT', path: '/api/admin/photos/:id', desc: '更新照片信息', auth: true, params: [{name: 'caption', type: 'string'},{name: 'location', type: 'string'},{name: 'time', type: 'string'}], response: '{ success }' },
+      { method: 'DELETE', path: '/api/admin/photos/:id', desc: '删除单张照片', auth: true, params: [], response: '{ success }' },
+      { method: 'POST', path: '/api/admin/photos/batch-delete', desc: '批量删除照片', auth: true, params: [{name: 'ids', type: 'array', desc: '照片 ID 数组'}], response: '{ success, deleted }' },
+      { method: 'PUT', path: '/api/admin/photos/reorder', desc: '照片排序', auth: true, params: [{name: 'photoIds', type: 'array', desc: '按新顺序排列的 ID 数组'}], response: '{ success }' },
+      { method: 'GET', path: '/api/admin/export', desc: '导出 JSON 数据', auth: true, params: [], response: 'JSON 文件下载' },
+      { method: 'POST', path: '/api/admin/import', desc: '导入 JSON 数据', auth: true, params: [{name: 'data', type: 'array', desc: '省份数据数组'}], response: '{ success, imported }' },
+      { method: 'GET', path: '/api/admin/backup', desc: '下载完整备份（ZIP）', auth: true, params: [], response: 'ZIP 文件下载' },
+      { method: 'GET', path: '/api/admin/comments', desc: '获取所有评论', auth: true, params: [], response: '评论数组' },
+      { method: 'GET', path: '/api/admin/comments/pending', desc: '获取待审核评论', auth: true, params: [], response: '评论数组' },
+      { method: 'PUT', path: '/api/admin/comments/:id/approve', desc: '审核通过评论', auth: true, params: [], response: '{ success }' },
+      { method: 'DELETE', path: '/api/admin/comments/:id', desc: '删除评论', auth: true, params: [], response: '{ success }' }
+    ]}
+  ]; %>
+
+  <% endpoints.forEach(function(group) { %>
+    <div class="api-section">
+      <h2><%= group.section %></h2>
+      <% group.items.forEach(function(ep) { %>
+        <div class="api-endpoint">
+          <div class="api-endpoint-head" onclick="toggleEndpoint(this)">
+            <div>
+              <span class="api-method <%= ep.method.toLowerCase() %>"><%= ep.method %></span>
+              <span class="api-endpoint-path"><%= ep.path %></span>
+              <span class="api-endpoint-desc"><%= ep.desc %></span>
+            </div>
+            <span class="api-toggle">展开</span>
+          </div>
+          <div class="api-endpoint-body">
+            <% if (ep.auth) { %><p style="color:var(--accent);font-size:0.85rem;">需要管理员登录</p><% } %>
+            <% if (ep.params.length > 0) { %>
+              <h4>参数</h4>
+              <table>
+                <thead><tr><th>名称</th><th>类型</th><th>说明</th></tr></thead>
+                <tbody>
+                  <% ep.params.forEach(function(param) { %>
+                    <tr><td><code><%= param.name %></code></td><td><%= param.type %></td><td><%= param.desc %></td></tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } %>
+            <h4>响应示例</h4>
+            <pre><%= ep.response %></pre>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% }) %>
+</div>
+
+<script>
+function toggleEndpoint(el) {
+  el.parentElement.classList.toggle('open');
+  el.querySelector('.api-toggle').textContent =
+    el.parentElement.classList.contains('open') ? '收起' : '展开';
+}
+</script>
+
+<%- include('partials/footer') %>

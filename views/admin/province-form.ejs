@@ -1,0 +1,120 @@
+<%
+  const isEdit = typeof province !== 'undefined' && province !== null;
+  const pageTitle = isEdit ? '编辑省份' : '新增省份';
+%>
+<%- include('../partials/admin-head', { title: pageTitle }) %>
+
+<%- include('../partials/admin-nav', { active: 'provinces' }) %>
+
+<main>
+  <div class="editor-container">
+    <a href="/admin/provinces" class="editor-back">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      返回省份列表
+    </a>
+    <h1 class="editor-title"><%= pageTitle %></h1>
+
+    <style>
+      .markdown-hint {
+        font-size: 0.78rem;
+        color: var(--text-light);
+        margin-top: 4px;
+        line-height: 1.5;
+      }
+      .markdown-hint code {
+        background: var(--bg-soft);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.78rem;
+      }
+      .diary-textarea {
+        min-height: 250px;
+        font-family: var(--serif);
+        line-height: 1.7;
+        font-size: 1rem;
+        resize: vertical;
+      }
+    </style>
+
+    <form id="provinceForm" class="form-stack" style="margin-top:24px;">
+      <% if (isEdit) { %>
+        <input type="hidden" name="id" value="<%= province.id %>">
+      <% } %>
+
+      <div class="field">
+        <label class="field-label">完整省份名（如"广东省""北京市""西藏自治区"）</label>
+        <input class="field-input" type="text" name="province" id="inputProvince" required
+          placeholder="例：广东省"
+          value="<%= isEdit ? province.province : '' %>">
+      </div>
+
+      <div class="field">
+        <label class="field-label">显示简称（页面显示的名称）</label>
+        <input class="field-input" type="text" name="display" id="inputDisplay" required
+          placeholder="例：广东"
+          value="<%= isEdit ? province.display : '' %>">
+      </div>
+
+      <div class="field">
+        <label class="field-label">旅行时间</label>
+        <input class="field-input" type="text" name="period" id="inputPeriod"
+          placeholder="例：2024 年 8 月"
+          value="<%= isEdit ? province.period : '' %>">
+      </div>
+
+      <div class="field">
+        <label class="field-label">游记（支持 Markdown 格式）</label>
+        <textarea class="field-textarea diary-textarea" name="diary" id="inputDiary" placeholder="写下对这趟旅行的回忆，支持 Markdown 格式..."><%= isEdit ? province.diary.join('\n\n') : '' %></textarea>
+        <div class="markdown-hint">
+          支持 Markdown 语法：<code>**加粗**</code> <code>*斜体*</code> <code>## 标题</code>
+          <code>> 引用</code> <code>- 列表</code> <code>[链接](url)</code> 空行分段
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:1rem;">
+          <%= isEdit ? '保存修改' : '创建省份' %>
+        </button>
+        <a href="/admin/provinces" class="btn" style="padding:12px 28px;font-size:1rem;text-decoration:none;">取消</a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+document.getElementById('provinceForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const isEdit = !!this.querySelector('input[name="id"]');
+  const id = isEdit ? this.querySelector('input[name="id"]').value : null;
+  const province = document.getElementById('inputProvince').value.trim();
+  const display = document.getElementById('inputDisplay').value.trim();
+  const period = document.getElementById('inputPeriod').value.trim();
+  const diaryText = document.getElementById('inputDiary').value.trim();
+
+  if (!province || !display) {
+    return showToast('请填写省份名和显示名');
+  }
+
+  const diary = diaryText ? diaryText.split('\n').filter(s => s.trim()) : [];
+  const body = { province, display, period, diary };
+
+  const url = isEdit ? '/api/admin/provinces/' + id : '/api/admin/provinces';
+  const method = isEdit ? 'PUT' : 'POST';
+
+  fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('操作失败: ' + data.error);
+      showToast(isEdit ? '已保存修改' : '省份已创建');
+      setTimeout(() => { window.location.href = '/admin/provinces'; }, 800);
+    })
+    .catch(err => showToast('操作失败: ' + err.message));
+});
+</script>
+
+<%- include('../partials/footer') %>

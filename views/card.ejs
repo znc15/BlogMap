@@ -1,0 +1,143 @@
+<%- include('partials/header', { title: province.display + ' · 分享卡片' }) %>
+
+<style>
+  .card-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+  }
+  .share-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+  .share-card-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+  .share-card-body {
+    padding: 28px 28px 24px;
+    text-align: center;
+  }
+  .share-card-province {
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .share-card-title {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .share-card-period {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .share-card-divider {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 0 auto 16px;
+    opacity: 0.5;
+  }
+  .share-card-diary {
+    font-family: var(--serif);
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+  }
+  .share-card-diary::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--card));
+  }
+  .share-card-footer {
+    padding: 16px 28px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-light);
+  }
+  .share-card-footer svg {
+    width: 14px;
+    height: 14px;
+  }
+  .share-actions {
+    text-align: center;
+    padding: 0 24px 40px;
+  }
+  .share-actions .btn {
+    margin: 0 6px;
+  }
+  @media print {
+    .share-actions, .nav { display: none; }
+    .share-card { box-shadow: none; border: 1px solid #ddd; max-width: 100%; }
+    .card-page { padding: 0; }
+  }
+</style>
+
+<div class="card-page">
+  <div>
+    <div class="share-card" id="shareCard">
+      <% if (firstPhoto) { %>
+        <img class="share-card-image" src="<%= firstPhoto.src %>" alt="<%= province.display %>">
+      <% } %>
+      <div class="share-card-body">
+        <div class="share-card-province"><%= province.province %></div>
+        <div class="share-card-title"><%= province.display %></div>
+        <div class="share-card-period"><%= province.period %></div>
+        <div class="share-card-divider"></div>
+        <% if (province.diary && province.diary.length > 0) { %>
+          <div class="share-card-diary"><%= province.diary[0] %></div>
+        <% } %>
+      </div>
+      <div class="share-card-footer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        足迹 · Footprints
+      </div>
+    </div>
+
+    <div class="share-actions">
+      <button class="btn" onclick="window.print()">打印 / 导出 PDF</button>
+      <button class="btn" onclick="copyCardUrl()">复制链接</button>
+      <a href="/province/<%= province.id %>" class="btn">查看详情</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyCardUrl() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(function() {
+    showToast('链接已复制');
+  }).catch(function() {
+    showToast('复制失败，请手动复制地址栏链接');
+  });
+}
+</script>
+
+<%- include('partials/footer') %>

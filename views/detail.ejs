@@ -1,0 +1,201 @@
+<%- include('partials/header', { title: province.display }) %>
+
+<style>
+  .detail-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .detail-actions .btn { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  /* Markdown 内容 */
+  .detail-diary h1, .detail-diary h2, .detail-diary h3 { font-family: var(--serif); margin-top: 1.5em; margin-bottom: 0.5em; }
+  .detail-diary h2 { font-size: 1.4rem; }
+  .detail-diary h3 { font-size: 1.2rem; }
+  .detail-diary ul, .detail-diary ol { padding-left: 1.5em; margin-bottom: 1em; }
+  .detail-diary li { margin-bottom: 0.3em; }
+  .detail-diary blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin: 1em 0;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .detail-diary code {
+    background: var(--bg-soft);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+  .detail-diary pre code {
+    display: block;
+    padding: 12px 16px;
+    overflow-x: auto;
+  }
+  /* EXIF 信息 */
+  .photo-exif {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .photo-exif span { display: inline-flex; align-items: center; gap: 3px; }
+  /* 评论区 */
+  .comments-section { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--border); max-width: 720px; }
+  .comments-title { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; }
+  .comment-item { padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+  .comment-item:last-child { border-bottom: none; }
+  .comment-author { font-weight: 600; font-size: 0.9rem; }
+  .comment-time { font-size: 0.78rem; color: var(--text-light); margin-left: 10px; }
+  .comment-content { margin-top: 6px; font-size: 0.92rem; line-height: 1.6; color: var(--text); }
+  .comment-form { margin-top: 20px; }
+  .comment-form .field { margin-bottom: 12px; }
+  .comment-form textarea { min-height: 80px; resize: vertical; }
+  .comment-empty { color: var(--text-muted); font-size: 0.9rem; padding: 20px 0; }
+</style>
+
+<main>
+  <div class="detail-inner" style="max-width:1100px;margin:0 auto;padding:32px 24px 80px;">
+    <a href="/" class="detail-back" style="text-decoration:none;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      返回首页
+    </a>
+
+    <div class="detail-header">
+      <div class="detail-eyebrow"><%= province.province %></div>
+      <h1 class="detail-title"><%= province.display %> · 旅行记</h1>
+      <div class="detail-meta">
+        <span>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <%= province.period %>
+        </span>
+        <span>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <%= province.photos.length %> 张照片
+        </span>
+      </div>
+    </div>
+
+    <!-- 游记 - Markdown 渲染 -->
+    <div class="detail-diary reveal">
+      <% if (province.diary && province.diary.length > 0) { %>
+        <%- renderedDiary %>
+      <% } %>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="detail-actions reveal">
+      <a href="/card/<%= province.id %>" class="btn" target="_blank">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+        生成分享卡片
+      </a>
+    </div>
+
+    <!-- 相册 -->
+    <div class="gallery reveal-stagger">
+      <% province.photos.forEach(function(photo, i) { %>
+        <div class="photo" onclick="openLightbox(<%= i %>)">
+          <img src="<%= photo.src %>" alt="<%= photo.caption %>" loading="lazy" class="img-fade">
+          <div class="photo-meta">
+            <div class="photo-caption"><%= photo.caption %></div>
+            <div class="photo-info">
+              <span>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <%= photo.location %>
+              </span>
+              <span>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <%= photo.time %>
+              </span>
+            </div>
+            <!-- EXIF 信息 -->
+            <% if (photo.camera || photo.aperture || photo.shutter || photo.iso) { %>
+              <div class="photo-exif">
+                <% if (photo.camera) { %><span><%= photo.camera %></span><% } %>
+                <% if (photo.aperture) { %><span><%= photo.aperture %></span><% } %>
+                <% if (photo.shutter) { %><span><%= photo.shutter %></span><% } %>
+                <% if (photo.iso) { %><span><%= photo.iso %></span><% } %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- 评论区 -->
+    <div class="comments-section reveal">
+      <div class="comments-title">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        留言评论
+      </div>
+
+      <div id="commentsList">
+        <% if (typeof comments !== 'undefined' && comments.length > 0) { %>
+          <% comments.forEach(function(c) { %>
+            <div class="comment-item">
+              <div>
+                <span class="comment-author"><%= c.author %></span>
+                <span class="comment-time"><%= c.created_at %></span>
+              </div>
+              <div class="comment-content"><%= c.content %></div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="comment-empty">暂无评论，来说两句吧</div>
+        <% } %>
+      </div>
+
+      <form class="comment-form" id="commentForm" onsubmit="submitComment(event)">
+        <div class="field">
+          <input class="field-input" type="text" id="commentAuthor" placeholder="你的昵称（可选）" maxlength="30">
+        </div>
+        <div class="field">
+          <textarea class="field-textarea" id="commentContent" placeholder="写下你的想法..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">提交评论</button>
+        <span id="commentMsg" style="margin-left:10px;font-size:0.85rem;color:var(--text-muted);"></span>
+      </form>
+    </div>
+  </div>
+</main>
+
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <button class="lightbox-nav prev" onclick="navLightbox(-1)">&#8249;</button>
+  <button class="lightbox-nav next" onclick="navLightbox(1)">&#8250;</button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<script>
+const PHOTOS_DATA = <%- JSON.stringify(province.photos).replace(/<\//g, '<\\/') %>;
+
+// 评论提交
+function submitComment(e) {
+  e.preventDefault();
+  var author = document.getElementById('commentAuthor').value.trim() || '匿名';
+  var content = document.getElementById('commentContent').value.trim();
+  if (!content) return;
+
+  var msg = document.getElementById('commentMsg');
+  msg.textContent = '提交中...';
+
+  fetch('/api/comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provinceId: <%= province.id %>, author: author, content: content })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) {
+        msg.textContent = '提交失败: ' + data.error;
+      } else {
+        msg.textContent = '评论已提交，审核通过后显示';
+        document.getElementById('commentContent').value = '';
+        setTimeout(function() { msg.textContent = ''; }, 3000);
+      }
+    })
+    .catch(function() { msg.textContent = '提交失败，请重试'; });
+}
+</script>
+<script src="/js/gallery.js"></script>
+
+<%- include('partials/footer') %>

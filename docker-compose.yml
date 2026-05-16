@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  travel-cms:
+    build: .
+    container_name: travel-footprints-cms
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      # 持久化数据库和上传文件
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=INFO

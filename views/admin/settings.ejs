@@ -1,0 +1,74 @@
+<%- include('../partials/admin-head', { title: '站点设置' }) %>
+
+<%- include('../partials/admin-nav', { active: 'settings' }) %>
+
+<main>
+  <div class="admin-main" style="max-width:600px;">
+    <div class="admin-page-header">
+      <h1 class="admin-page-title">站点设置</h1>
+      <span style="color:var(--text-muted);font-size:0.85rem;">修改后即时生效，无需重启</span>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div style="background:rgba(76,175,80,0.12);border:1px solid #4CAF50;border-radius:10px;padding:14px 18px;margin-bottom:20px;color:#4CAF50;font-size:0.9rem;display:flex;align-items:center;gap:8px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <%= success %>
+      </div>
+    <% } %>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="background:rgba(214,90,49,0.12);border:1px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:20px;color:var(--accent);font-size:0.9rem;display:flex;align-items:center;gap:8px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <%= error %>
+      </div>
+    <% } %>
+
+    <!-- 账号信息 -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:24px;">
+      <div style="font-family:var(--serif);font-weight:600;font-size:0.95rem;margin-bottom:14px;">管理员账户</div>
+      <form method="post" action="/admin/settings" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+        <input type="hidden" name="action" value="changeUsername">
+        <div class="field" style="flex:1;min-width:180px;margin-bottom:0;">
+          <label class="field-label">用户名（当前：<%= username %>）</label>
+          <input class="field-input" type="text" name="newUsername" value="<%= username %>" placeholder="输入新用户名" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="min-height:42px;">
+          <svg class="icon-sm icon-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          更新用户名
+        </button>
+      </form>
+    </div>
+
+    <!-- 站点信息 -->
+    <form method="post" action="/admin/settings" class="form-stack">
+      <input type="hidden" name="action" value="siteSettings">
+      <div class="field">
+        <label class="field-label">网站名称（显示在浏览器标题栏和导航栏）</label>
+        <input class="field-input" type="text" name="siteName" value="<%= siteName %>" placeholder="例：足迹 · Footprints" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label">页脚文字（显示在页面最底部）</label>
+        <input class="field-input" type="text" name="siteFooter" value="<%= siteFooter %>" placeholder="例：旅途中的光与风">
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:1rem;">
+          <svg class="icon-sm icon-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          保存设置
+        </button>
+        <a href="/admin/dashboard" class="btn" style="padding:12px 28px;font-size:1rem;text-decoration:none;">取消</a>
+      </div>
+    </form>
+
+    <div style="margin-top:24px;padding:16px 18px;background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;">
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:6px;">当前设置预览</div>
+      <div style="font-size:0.9rem;color:var(--text);">
+        <div>网站名称：<strong style="color:var(--accent);"><%= siteName %></strong></div>
+        <div style="margin-top:4px;">页脚文字：<strong style="color:var(--accent);"><%= siteFooter || '(未设置)' %></strong></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

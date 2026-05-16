@@ -1,0 +1,21 @@
+{
+  "name": "足迹 · Footprints",
+  "short_name": "足迹",
+  "description": "旅行相册 - 用照片记录走过的路",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#222831",
+  "theme_color": "#222831",
+  "icons": [
+    {
+      "src": "/data/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/data/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

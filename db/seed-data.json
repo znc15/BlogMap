@@ -1,0 +1,135 @@
+[
+  {
+    "province": "北京市",
+    "display": "北京",
+    "period": "2024 年 8 月",
+    "diary": [
+      "盛夏的北京，太阳把胡同的青砖晒得发烫。我从南锣鼓巷的尽头一路向北，听见自行车铃在风里掠过，老人摇着蒲扇坐在槐树下。",
+      "故宫的红墙是这座城市最沉默的部分。它不说话，但你站在午门外面，会忽然听见六百年的回声。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/bj1/800/1100", "caption": "胡同里的晨光，从灰瓦上漏下来。", "location": "北京 · 南锣鼓巷", "time": "2024-08-14 07:42" },
+      { "src": "https://picsum.photos/seed/bj2/800/600",  "caption": "故宫红墙，颜色比想象中更深。", "location": "北京 · 故宫博物院", "time": "2024-08-15 16:20" },
+      { "src": "https://picsum.photos/seed/bj3/800/900",  "caption": "什刹海的傍晚，风有荷叶的味道。", "location": "北京 · 什刹海", "time": "2024-08-16 18:55" },
+      { "src": "https://picsum.photos/seed/bj4/800/1000", "caption": "钟楼的剪影，夕阳沉得很慢。", "location": "北京 · 钟鼓楼", "time": "2024-08-16 19:30" }
+    ]
+  },
+  {
+    "province": "上海市",
+    "display": "上海",
+    "period": "2024 年 11 月",
+    "diary": [
+      "外滩的风永远带着江水的腥气。对岸的高楼像被人用刀切过的水晶，亮得理直气壮。",
+      "我喜欢梧桐区，落叶踩上去咯吱咯吱响，是这座城市少见的、愿意放慢一些的角落。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/sh1/800/1200", "caption": "陆家嘴的夜，被江水反复折叠。", "location": "上海 · 外滩", "time": "2024-11-02 20:15" },
+      { "src": "https://picsum.photos/seed/sh2/800/700",  "caption": "武康大楼，时间在墙上长出青苔。", "location": "上海 · 武康路", "time": "2024-11-03 14:30" },
+      { "src": "https://picsum.photos/seed/sh3/800/950",  "caption": "梧桐叶落了一地，像被谁打翻的金。", "location": "上海 · 安福路", "time": "2024-11-04 09:50" }
+    ]
+  },
+  {
+    "province": "浙江省",
+    "display": "浙江",
+    "period": "2024 年 4 月",
+    "diary": [
+      "西湖的春天是黏稠的——柳絮在水面上漂，桃花扑簌簌地往下落，连空气都是粉色的。",
+      "走到苏堤尽头，雨忽然下了起来。撑伞的人不慌不忙，像走进了一幅没干透的水墨画。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/zj1/800/600",  "caption": "断桥还没残雪，但已有春寒。", "location": "杭州 · 西湖", "time": "2024-04-05 08:10" },
+      { "src": "https://picsum.photos/seed/zj2/800/1100", "caption": "灵隐寺的香火，是潮湿的烟。", "location": "杭州 · 灵隐寺", "time": "2024-04-06 10:25" },
+      { "src": "https://picsum.photos/seed/zj3/800/800",  "caption": "乌镇的水巷，船桨切开了夜色。", "location": "嘉兴 · 乌镇", "time": "2024-04-07 19:40" },
+      { "src": "https://picsum.photos/seed/zj4/800/1000", "caption": "茶园层层叠叠，像绿色的等高线。", "location": "杭州 · 龙井村", "time": "2024-04-08 11:15" }
+    ]
+  },
+  {
+    "province": "四川省",
+    "display": "四川",
+    "period": "2023 年 10 月",
+    "diary": [
+      "成都是一座懒得起床的城市。我在玉林路的小馆子里喝盖碗茶，听老板娘和熟客聊家长里短，半个下午就过去了。",
+      "九寨沟的水是另一种语言。蓝得失真，绿得过分，仿佛大自然在那里偷偷调色。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/sc1/800/1000", "caption": "九寨的水，蓝得不像真的。", "location": "阿坝 · 九寨沟", "time": "2023-10-11 13:20" },
+      { "src": "https://picsum.photos/seed/sc2/800/700",  "caption": "宽窄巷子的灯笼，一串接一串。", "location": "成都 · 宽窄巷子", "time": "2023-10-13 19:50" },
+      { "src": "https://picsum.photos/seed/sc3/800/1150", "caption": "熊猫睡得心安理得。", "location": "成都 · 大熊猫基地", "time": "2023-10-14 10:30" },
+      { "src": "https://picsum.photos/seed/sc4/800/900",  "caption": "峨眉山的云海，从脚下涌上来。", "location": "乐山 · 峨眉山金顶", "time": "2023-10-16 06:45" }
+    ]
+  },
+  {
+    "province": "云南省",
+    "display": "云南",
+    "period": "2024 年 3 月",
+    "diary": [
+      "大理的风是出了名的。它从苍山吹过来，穿过洱海，最后停在你的衣角上，像一只赖着不走的小猫。",
+      "在丽江的客栈，老板养了一只懒狗。它每天躺在天井里晒太阳，仿佛已经在那里晒了一千年。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/yn1/800/600",  "caption": "洱海边的日出，海鸥比太阳更先抵达。", "location": "大理 · 洱海", "time": "2024-03-08 07:05" },
+      { "src": "https://picsum.photos/seed/yn2/800/1100", "caption": "古城的青石板，被脚步磨得发亮。", "location": "丽江 · 大研古城", "time": "2024-03-10 21:00" },
+      { "src": "https://picsum.photos/seed/yn3/800/800",  "caption": "玉龙雪山的雪线，比想象中更近。", "location": "丽江 · 玉龙雪山", "time": "2024-03-11 11:45" }
+    ]
+  },
+  {
+    "province": "西藏自治区",
+    "display": "西藏",
+    "period": "2023 年 7 月",
+    "diary": [
+      "进藏那天我哭了。不是因为高反，是因为云。云低得能伸手抓到，像是有人把天空捏在掌心揉了一遍。",
+      "在布达拉宫前，我看见一位老人磕长头，从清晨到日落，没有一刻停下。信仰这两个字，在那一刻有了形状。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/xz1/800/1000", "caption": "布达拉宫，世界尽头的白与红。", "location": "拉萨 · 布达拉宫", "time": "2023-07-20 16:30" },
+      { "src": "https://picsum.photos/seed/xz2/800/600",  "caption": "纳木错的水，蓝得能盛住整个夏天。", "location": "当雄 · 纳木错", "time": "2023-07-22 12:15" },
+      { "src": "https://picsum.photos/seed/xz3/800/1200", "caption": "经幡在风里念诵，无止无休。", "location": "拉萨 · 哲蚌寺", "time": "2023-07-21 10:40" },
+      { "src": "https://picsum.photos/seed/xz4/800/900",  "caption": "318 国道，每一公里都是风景。", "location": "318 国道 · 林芝段", "time": "2023-07-19 14:20" }
+    ]
+  },
+  {
+    "province": "新疆维吾尔自治区",
+    "display": "新疆",
+    "period": "2024 年 9 月",
+    "diary": [
+      "喀纳斯的秋天是用调色盘倒出来的。金黄的白桦、墨绿的松、青蓝的湖水，三种颜色用力堆在一起，却一点都不显得满。",
+      "在禾木的小村庄里，黄昏会准时降临。炊烟先升起来，然后是星星，最后是银河 —— 它来得那么慢，又那么不慌不忙。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/xj1/800/1100", "caption": "喀纳斯的湖，秋天先抵达这里。", "location": "阿勒泰 · 喀纳斯", "time": "2024-09-25 09:30" },
+      { "src": "https://picsum.photos/seed/xj2/800/700",  "caption": "禾木的清晨，炊烟一根根升起。", "location": "阿勒泰 · 禾木村", "time": "2024-09-26 06:50" },
+      { "src": "https://picsum.photos/seed/xj3/800/950",  "caption": "独库公路，从夏天开到冬天。", "location": "独库公路 · 巴音布鲁克", "time": "2024-09-28 13:00" },
+      { "src": "https://picsum.photos/seed/xj4/800/800",  "caption": "葡萄沟的午后，藤蔓把太阳过滤过一遍。", "location": "吐鲁番 · 葡萄沟", "time": "2024-09-30 15:40" }
+    ]
+  },
+  {
+    "province": "福建省",
+    "display": "福建",
+    "period": "2025 年 3 月",
+    "diary": [
+      "鼓浪屿的钢琴声是这座小岛的心跳。窄巷子里藏着老别墅，每一扇百叶窗后面都有一段南洋往事。",
+      "武夷山的茶是能喝下去的雾。九曲溪的竹筏漂过，两岸的岩壁被岁月切成一层层页岩，像一本打开的地质书。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/fj1/800/1100", "caption": "鼓浪屿的黄昏，海风里有钢琴的余韵。", "location": "厦门 · 鼓浪屿", "time": "2025-03-12 17:45" },
+      { "src": "https://picsum.photos/seed/fj2/800/700",  "caption": "武夷山九曲溪，竹筏在碧水上写诗。", "location": "南平 · 武夷山", "time": "2025-03-14 10:20" },
+      { "src": "https://picsum.photos/seed/fj3/800/900",  "caption": "土楼里住着一个家族的三百年。", "location": "龙岩 · 永定土楼", "time": "2025-03-16 14:00" },
+      { "src": "https://picsum.photos/seed/fj4/800/1000", "caption": "霞浦的滩涂，落日把海涂烧成金红。", "location": "宁德 · 霞浦", "time": "2025-03-18 18:10" }
+    ]
+  },
+  {
+    "province": "甘肃省",
+    "display": "甘肃",
+    "period": "2024 年 10 月",
+    "diary": [
+      "敦煌的沙子是会说话的。鸣沙山的风一吹，整座沙丘都在低语，月牙泉是这片沙漠里最温柔的一句。",
+      "在莫高窟，壁画上的飞天一千年都没有落地。颜料褪了，线条模糊了，但那种向上升腾的渴望比任何时候都清晰。"
+    ],
+    "photos": [
+      { "src": "https://picsum.photos/seed/gs1/800/1000", "caption": "月牙泉，沙漠眼睛里的最后一滴泪。", "location": "敦煌 · 鸣沙山月牙泉", "time": "2024-10-08 16:30" },
+      { "src": "https://picsum.photos/seed/gs2/800/700",  "caption": "莫高窟的九层楼，守着千年秘密。", "location": "敦煌 · 莫高窟", "time": "2024-10-09 11:15" },
+      { "src": "https://picsum.photos/seed/gs3/800/1100", "caption": "张掖的丹霞，大地在这里打翻了颜料。", "location": "张掖 · 七彩丹霞", "time": "2024-10-11 15:40" },
+      { "src": "https://picsum.photos/seed/gs4/800/900",  "caption": "嘉峪关的风，从明朝一直吹到今夜。", "location": "嘉峪关 · 关城", "time": "2024-10-13 19:20" }
+    ]
+  }
+]

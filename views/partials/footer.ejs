@@ -1,0 +1,35 @@
+<footer>
+  &copy; <%= currentYear %> · Made with <span class="heart">&hearts;</span> <%= siteFooter %>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Toast 通知
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+      console.log('SW 注册成功:', reg.scope);
+    }).catch(function(err) {
+      console.log('SW 注册失败:', err);
+    });
+  });
+}
+</script>
+
+<% if (typeof extraFoot !== 'undefined') { %>
+  <%- extraFoot %>
+<% } %>
+</body>
+</html>

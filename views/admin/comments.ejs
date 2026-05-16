@@ -1,0 +1,88 @@
+<%- include('../partials/admin-head', { title: '评论管理' }) %>
+
+<%- include('../partials/admin-nav', { active: 'comments' }) %>
+
+<main>
+  <div class="admin-main">
+    <div class="admin-page-header">
+      <h1 class="admin-page-title">评论管理</h1>
+    </div>
+
+    <div class="admin-table-wrap">
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>省份</th>
+              <th>作者</th>
+              <th>评论内容</th>
+              <th>时间</th>
+              <th>状态</th>
+              <th class="text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (comments.length === 0) { %>
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state" style="padding:40px;">
+                    <div class="empty-state-text">暂无评论</div>
+                  </div>
+                </td>
+              </tr>
+            <% } else { %>
+              <% comments.forEach(function(c) { %>
+                <tr data-comment-id="<%= c.id %>" class="<%= c.approved === 0 ? '' : '' %>">
+                  <td><%= c.province_display || '-' %></td>
+                  <td><%= c.author %></td>
+                  <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= c.content %></td>
+                  <td class="cell-muted"><%= c.created_at %></td>
+                  <td>
+                    <% if (c.approved === 0) { %>
+                      <span style="color:var(--accent);font-weight:500;">待审核</span>
+                    <% } else { %>
+                      <span style="color:#4CAF50;">已通过</span>
+                    <% } %>
+                  </td>
+                  <td class="cell-actions">
+                    <% if (c.approved === 0) { %>
+                      <button class="btn" onclick="approveComment(<%= c.id %>)">通过</button>
+                    <% } %>
+                    <button class="btn btn-danger" onclick="deleteComment(<%= c.id %>)">删除</button>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function approveComment(id) {
+  fetch('/api/admin/comments/' + id + '/approve', { method: 'PUT' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('操作失败: ' + data.error);
+      showToast('已审核通过');
+      setTimeout(() => location.reload(), 600);
+    })
+    .catch(() => showToast('操作失败'));
+}
+
+function deleteComment(id) {
+  if (!confirm('确定要删除这条评论吗？')) return;
+  fetch('/api/admin/comments/' + id, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('删除失败: ' + data.error);
+      showToast('已删除');
+      setTimeout(() => location.reload(), 600);
+    })
+    .catch(() => showToast('删除失败'));
+}
+</script>
+
+<%- include('../partials/footer') %>

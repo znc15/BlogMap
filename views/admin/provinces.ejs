@@ -1,0 +1,98 @@
+<%- include('../partials/admin-head', { title: '省份管理' }) %>
+
+<%- include('../partials/admin-nav', { active: 'provinces' }) %>
+
+<main>
+  <div class="admin-main">
+    <div class="admin-page-header">
+      <h1 class="admin-page-title">省份管理</h1>
+      <a href="/admin/provinces/new" class="btn btn-primary" style="text-decoration:none;">
+        <svg class="icon-sm icon-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        新增省份
+      </a>
+    </div>
+
+    <div class="admin-table-wrap">
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>显示名</th>
+              <th>完整名称</th>
+              <th>旅行时间</th>
+              <th class="text-center">照片数</th>
+              <th class="text-center">状态</th>
+              <th class="text-right">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (provinces.length === 0) { %>
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state" style="padding:40px;">
+                    <div class="empty-state-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </div>
+                    <div class="empty-state-text">暂无省份数据</div>
+                    <div class="empty-state-action">
+                      <a href="/admin/provinces/new" class="btn btn-primary">创建第一个省份</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% } else { %>
+              <% provinces.forEach(function(p) { %>
+                <tr data-province-id="<%= p.id %>">
+                  <td><div class="cell-name"><%= p.display %></div></td>
+                  <td class="cell-muted"><%= p.province %></td>
+                  <td class="cell-muted"><%= p.period || '-' %></td>
+                  <td class="cell-center"><%= p.photo_count %></td>
+                  <td class="cell-center">
+                    <% if (p.status === 'draft') { %>
+                      <span style="color:var(--accent);font-size:0.82rem;">草稿</span>
+                    <% } else { %>
+                      <span style="color:#4CAF50;font-size:0.82rem;">已发布</span>
+                    <% } %>
+                  </td>
+                  <td class="cell-actions">
+                    <a href="/admin/provinces/<%= p.id %>/edit" class="btn">编辑</a>
+                    <a href="/admin/photos?province_id=<%= p.id %>" class="btn">照片</a>
+                    <button class="btn" onclick="toggleStatus(<%= p.id %>, <%- JSON.stringify(p.display) %>)">切换状态</button>
+                    <button class="btn btn-danger" onclick="deleteProvince(<%= p.id %>, <%- JSON.stringify(p.display) %>)">删除</button>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function deleteProvince(id, name) {
+  if (!confirm('确定要删除"' + name + '"吗？所有相关照片也会被删除。')) return;
+  fetch('/api/admin/provinces/' + id, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('删除失败: ' + data.error);
+      showToast('已删除 ' + name);
+      setTimeout(() => location.reload(), 800);
+    })
+    .catch(() => showToast('删除失败'));
+}
+
+function toggleStatus(id, name) {
+  fetch('/api/admin/provinces/' + id + '/toggle-status', { method: 'PUT' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return showToast('操作失败: ' + data.error);
+      showToast(name + ' 已切换为 ' + (data.status === 'published' ? '已发布' : '草稿'));
+      setTimeout(() => location.reload(), 800);
+    })
+    .catch(() => showToast('操作失败'));
+}
+</script>
+
+<%- include('../partials/footer') %>

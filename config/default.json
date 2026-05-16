@@ -1,0 +1,21 @@
+{
+  "port": 3000,
+  "sessionSecret": "travel-footprints-secret-change-in-production",
+  "site": {
+    "name": "足迹 · Footprints",
+    "footer": "旅途中的光与风"
+  },
+  "admin": {
+    "username": "admin",
+    "password": "admin123"
+  },
+  "upload": {
+    "maxFileSize": 10485760,
+    "allowedTypes": ["image/jpeg", "image/png", "image/webp"],
+    "directory": "public/uploads"
+  },
+  "geojson": {
+    "url": "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+    "cachePath": "public/data/china-geo.json"
+  }
+}
