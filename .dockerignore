@@ -1,0 +1,43 @@
+# 依赖（由 npm install 在容器内安装）
+node_modules/
+
+# 数据库
+data/*.db
+*.db-journal
+*.db-wal
+
+# 上传文件
+public/uploads/*
+!public/uploads/.gitkeep
+
+# GeoJSON 缓存（启动时自动拉取）
+public/data/china-geo.json
+
+# 环境变量
+.env
+.env.local
+
+# 日志
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+.dockerignore
+
+# Claude Code
+.claude/
+
+# Trellis
+.trellis/
+
+# 临时文件
+*.tmp
